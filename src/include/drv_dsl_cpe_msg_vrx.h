@@ -30,6 +30,7 @@
 
 DSL_void_t DSL_DRV_VRX_DumpMessage(
    DSL_Context_t *pContext,
+   const DSL_uint16_t nClass,
    const DSL_uint16_t nMsgId,
    const DSL_uint16_t *pData,
    const DSL_uint16_t nSize,

@@ -19,7 +19,7 @@ endif
 if FW_R9
 VRX_HEADER_DIR = include/mcat2.7
 else
-VRX_HEADER_DIR = include/mcat3.0
+VRX_HEADER_DIR = include/mcat3.1
 endif
 
 
@@ -159,13 +159,13 @@ drv_vrx_specific_extra = \
 	include/mcat2.7/drv_dsl_cpe_vrx_msg_olr.h \
 	include/mcat2.7/drv_dsl_cpe_vrx_msg_perf_pmd.h \
 	include/mcat2.7/drv_dsl_cpe_vrx_msg_tc_counters.h \
-	include/mcat3.0/drv_dsl_cpe_vrx_msg_config_pmd.h \
-	include/mcat3.0/drv_dsl_cpe_vrx_msg_const.h \
-	include/mcat3.0/drv_dsl_cpe_vrx_msg_dmt_scope.h \
-	include/mcat3.0/drv_dsl_cpe_vrx_msg_ghs_status.h \
-	include/mcat3.0/drv_dsl_cpe_vrx_msg_olr.h \
-	include/mcat3.0/drv_dsl_cpe_vrx_msg_perf_pmd.h \
-	include/mcat3.0/drv_dsl_cpe_vrx_msg_tc_counters.h \
+	include/mcat3.1/drv_dsl_cpe_vrx_msg_config_pmd.h \
+	include/mcat3.1/drv_dsl_cpe_vrx_msg_const.h \
+	include/mcat3.1/drv_dsl_cpe_vrx_msg_dmt_scope.h \
+	include/mcat3.1/drv_dsl_cpe_vrx_msg_ghs_status.h \
+	include/mcat3.1/drv_dsl_cpe_vrx_msg_olr.h \
+	include/mcat3.1/drv_dsl_cpe_vrx_msg_perf_pmd.h \
+	include/mcat3.1/drv_dsl_cpe_vrx_msg_tc_counters.h \
 	include/drv_dsl_cpe_vrx_ctx.h \
 	../scripts/inst_drv_dsl_cpe_api_vrx.sh
 

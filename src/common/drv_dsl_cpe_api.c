@@ -1779,7 +1779,8 @@ DSL_Error_t DSL_DRV_AutobootControlSet(
       /** TODO: Check why only not on chip bonding **/
       /* Ignore for locked line */
       if (DSL_DRV_BONDING_ENABLED && (DSL_DRV_LINES_PER_DEVICE == 1)
-          && nLineLocked == DSL_DEV_NUM(pContext))
+          && nLineLocked == DSL_DEV_NUM(pContext)
+          && pData->data.nCommand != DSL_AUTOBOOT_CTRL_STOP_PD)
       {
          DSL_DEBUG(DSL_DBG_WRN, (pContext,
             SYS_DBG_WRN"DSL[%02d]: WARNING - PAF not available, line disabled!"
@@ -1936,6 +1937,9 @@ DSL_Error_t DSL_DRV_AutobootControlSet(
                /* no break */
                /* ... pass to restart*/
 
+#if defined (DSL_VRX_DEVICE_VR11)
+            case DSL_AUTOBOOT_CTRL_STOP_PD:
+#endif
             case DSL_AUTOBOOT_CTRL_RESTART:
             case DSL_AUTOBOOT_CTRL_RESTART_FULL:
                if (pData->data.nCommand == DSL_AUTOBOOT_CTRL_RESTART_FULL)
@@ -1999,10 +2003,20 @@ DSL_Error_t DSL_DRV_AutobootControlSet(
                                 DSL_AUTOBOOT_STATUS_RUNNING, DSL_FW_REQUEST_NA);
                }
 
+#if defined(DSL_VRX_DEVICE_VR11)
+               if (pData->data.nCommand == DSL_AUTOBOOT_CTRL_STOP_PD)
+               {
+                  DSL_CTX_WRITE_SCALAR(pContext, nErrCode, bPowerDown, DSL_TRUE);
+                  nErrCode = DSL_DRV_AutobootStatusSet(pContext, DSL_AUTOBOOT_STATUS_SHUTDOWN_PD,
+                                                       DSL_FW_REQUEST_NA);
+               }
+#endif
+
                if (DSL_DRV_BONDING_ENABLED && DSL_DRV_LINES_PER_DEVICE == 1)
                {
                   if ((pData->data.nCommand == DSL_AUTOBOOT_CTRL_RESTART) ||
-                     (pData->data.nCommand == DSL_AUTOBOOT_CTRL_RESTART_FULL))
+                      (pData->data.nCommand == DSL_AUTOBOOT_CTRL_RESTART_FULL) ||
+                      (pData->data.nCommand == DSL_AUTOBOOT_CTRL_STOP_PD))
                   {
                      DSL_DRV_MUTEX_LOCK(bndLineLockMutex);
                      /* Restart for unlocked line */
@@ -6246,6 +6260,7 @@ DSL_Error_t DSL_DRV_IoctlHandle(
    DSL_uint32_t nArg)
 {
    DSL_Error_t nErrCode = DSL_ERROR;
+   DSL_Error_t nCtxRWErrCode = DSL_ERROR;
    DSL_IOCTL_arg_t *pIOCTL_arg = DSL_NULL;
    DSL_EventData_Union_t *pEventData;
    DSL_uint8_t *pMsgBuf, *pOldMsgBuf, *pMaskBuf, *pDataBuf;
@@ -6257,7 +6272,9 @@ DSL_Error_t DSL_DRV_IoctlHandle(
    DSL_IOCTL_Table_t *pIoctlTable = ioctlTable, *pIoctlRecord = ioctlTable ;
    DSL_boolean_t bIoctlFound = DSL_FALSE;
    DSL_DEV_Handle_t dev;
+#if defined (DSL_VRX_DEVICE_VR11)
    DSL_DEV_VersionCheck_t nVerCheck = DSL_VERSION_ERROR;
+#endif
    DSL_uint32_t nOppositeLine;
 
 #ifndef DSL_DEBUG_DISABLE
@@ -6822,19 +6839,23 @@ DSL_Error_t DSL_DRV_IoctlHandle(
                DSL_DRV_VRX_FirmwareVersionCheck(pContext, DSL_MIN_FW_VERSION_VR11_R5, &nVerCheck);
                if (bFwEventActivation && nVerCheck >= DSL_VERSION_EQUAL)
                {
-                  DSL_CTX_WRITE_SCALAR(pContext, nErrCode, bFwEventActivation, DSL_TRUE);
+                  DSL_CTX_WRITE_SCALAR(pContext, nCtxRWErrCode, bFwEventActivation, DSL_TRUE);
+                  DSL_SET_ERROR_CODE(nCtxRWErrCode, nErrCode);
                }
                else
                {
-                  nErrCode = DSL_WRN_CONFIG_PARAM_IGNORED;
-                  DSL_CTX_WRITE_SCALAR(pContext, nErrCode, bFwEventActivation, DSL_FALSE);
+                  DSL_SET_ERROR_CODE(DSL_WRN_CONFIG_PARAM_IGNORED, nErrCode);
+                  DSL_CTX_WRITE_SCALAR(pContext, nCtxRWErrCode, bFwEventActivation, DSL_FALSE);
+                  DSL_SET_ERROR_CODE(nCtxRWErrCode, nErrCode);
                }
                #else
-               nErrCode = DSL_WRN_CONFIG_PARAM_IGNORED;
-               DSL_CTX_WRITE_SCALAR(pContext, nErrCode, bFwEventActivation, DSL_FALSE);
+               DSL_SET_ERROR_CODE(DSL_WRN_CONFIG_PARAM_IGNORED, nErrCode);
+               DSL_CTX_WRITE_SCALAR(pContext, nCtxRWErrCode, bFwEventActivation, DSL_FALSE);
+               DSL_SET_ERROR_CODE(nCtxRWErrCode, nErrCode);
                #endif /* defined (DSL_VRX_DEVICE_VR11) */
 
-               DSL_CTX_READ_SCALAR(pContext, nErrCode, bFwEventActivation, bFwEventActivation);
+               DSL_CTX_READ_SCALAR(pContext, nCtxRWErrCode, bFwEventActivation, bFwEventActivation);
+               DSL_SET_ERROR_CODE(nCtxRWErrCode, nErrCode);
 
                dev = pContext->pDevCtx->nfc_lowHandle;
 

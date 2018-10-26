@@ -195,6 +195,8 @@ DSL_Error_t DSL_DRV_PM_Start(
       (DSL_PM_CountersData_t*)DSL_DRV_Malloc(sizeof(DSL_PM_CountersData_t));
    if (DSL_DRV_PM_CONTEXT(pContext)->pCounters == DSL_NULL)
    {
+      DSL_DRV_MemFree(pContext->PM);
+
       DSL_DEBUG(DSL_DBG_ERR,
          (pContext, SYS_DBG_ERR"DSL[%02d]: PM_Start: no memory for PM counters!"
          DSL_DRV_CRLF, DSL_DEV_NUM(pContext)));
@@ -207,6 +209,9 @@ DSL_Error_t DSL_DRV_PM_Start(
       (DSL_PM_CountersDump_t*)DSL_DRV_Malloc(sizeof(DSL_PM_CountersDump_t));
    if (DSL_DRV_PM_CONTEXT(pContext)->pCountersDump == DSL_NULL)
    {
+      DSL_DRV_MemFree(DSL_DRV_PM_CONTEXT(pContext)->pCounters);
+      DSL_DRV_MemFree(pContext->PM);
+
       DSL_DEBUG(DSL_DBG_ERR,
          (pContext, SYS_DBG_ERR"DSL[%02d]: PM_Start: no memory for PM dump counters!"
          DSL_DRV_CRLF, DSL_DEV_NUM(pContext)));
@@ -503,6 +508,10 @@ DSL_Error_t DSL_DRV_PM_Start(
    /* Initialize PM module device specific parameters*/
    if( DSL_DRV_PM_DEV_Start(pContext) != DSL_SUCCESS )
    {
+      DSL_DRV_MemFree(DSL_DRV_PM_CONTEXT(pContext)->pCounters);
+      DSL_DRV_MemFree(DSL_DRV_PM_CONTEXT(pContext)->pCountersDump);
+      DSL_DRV_MemFree(pContext->PM);
+
       DSL_DEBUG(DSL_DBG_ERR,
          (pContext, SYS_DBG_ERR"DSL[%02d]: ERROR - PM module device specific init failed!"
          DSL_DRV_CRLF, DSL_DEV_NUM(pContext)));
@@ -545,6 +554,19 @@ DSL_Error_t DSL_DRV_PM_Start(
       DSL_DEBUG(DSL_DBG_MSG,
          (pContext, SYS_DBG_MSG"DSL[%02d]: ERROR - PM module FE thread start failed, retCode(%d)!"
          DSL_DRV_CRLF, DSL_DEV_NUM(pContext), nErrCode));
+   }
+
+   /* Check the PM module Near-End and Far-End thread active flag */
+   if( DSL_DRV_PM_CONTEXT(pContext)->pmThreadFe.bRun == DSL_FALSE &&
+       DSL_DRV_PM_CONTEXT(pContext)->pmThreadNe.bRun == DSL_FALSE )
+   {
+      DSL_DEBUG(DSL_DBG_ERR,
+         (pContext, SYS_DBG_ERR"DSL[%02d]: ERROR - PM module NE and FE threads start failed!"
+         DSL_DRV_CRLF, DSL_DEV_NUM(pContext)));
+
+      DSL_DRV_MemFree(DSL_DRV_PM_CONTEXT(pContext)->pCounters);
+      DSL_DRV_MemFree(DSL_DRV_PM_CONTEXT(pContext)->pCountersDump);
+      DSL_DRV_MemFree(pContext->PM);
    }
 
    DSL_DEBUG(DSL_DBG_MSG,

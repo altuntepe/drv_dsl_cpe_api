@@ -116,6 +116,8 @@ typedef enum
    /* *********************************************************************** */
    /* *** Common Error Codes                                              *** */
    /* *********************************************************************** */
+   /** The command is not allowed in current autoboot state. */
+   DSL_ERR_NOT_SUPPORTED_IN_CURRENT_AUTOBOOT_STATE = -46,
    /** The requested values are not supported in the upstream
       (US) direction */
    DSL_ERR_NOT_SUPPORTED_IN_US_DIRECTION = -45,

@@ -1751,9 +1751,12 @@ typedef enum
    /**
    Retrain required with ADSL FW in T1.413 mode */
    LINIT_SUB_T1413_MODE = 11,
+#if defined(DSL_VRX_DEVICE_VR11)
    /**
    Clock set mode issue */
-   LINIT_SUB_S_PP_CLOCK_NEW = 12
+   LINIT_SUB_S_PP_CLOCK_NEW = 12,
+   LINIT_SUB_S_PP_ERB_INIT = 13,
+#endif /* defined(DSL_VRX_DEVICE_VR11) */
 } DSL_G997_LineInitSubStatus_t;
 
 /**

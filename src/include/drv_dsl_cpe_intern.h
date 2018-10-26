@@ -243,6 +243,10 @@ struct DSL_Context
    DSL_boolean_t bOrderlyShutDown;
    /** External Trigger to restart autoboot handling*/
    DSL_boolean_t bAutobootDisable;
+#if defined(DSL_VRX_DEVICE_VR11)
+   /** External trigger to power down DSL */
+   DSL_boolean_t bPowerDown;
+#endif
    /** Autoboot queue */
    DSL_DRV_Event_t autobootEvent;
    /** Autoboot thread activity flag */
@@ -542,6 +546,8 @@ struct DSL_Context
 
    DSL_boolean_t  bFwEventActivation;
    DSL_boolean_t  bFwEventRcvd;
+   DSL_Error_t    nFwEventLastReadErr;
+   DSL_LineStateValue_t nFwEventLineState;
 };
 
 #define DSL_EVENT2MASK(evt) ((DSL_uint32_t)(0x1 << ((DSL_uint32_t)evt)))
@@ -2321,6 +2327,11 @@ DSL_Error_t DSL_DRV_VRX_SendMsgModemFSMEventConfigure(
    DSL_IN DSL_boolean_t value);
 #endif
 
+#ifndef SWIG
+DSL_Error_t DSL_DRV_VRX_SendMsgFeatureMapGet(
+   DSL_IN DSL_Context_t *pContext,
+   DSL_IN DSL_uint8_t *pAck);
+#endif
 /*
    DSL IOCTL handler helpers stuff
 */

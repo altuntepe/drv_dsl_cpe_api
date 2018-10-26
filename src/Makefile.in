@@ -479,7 +479,7 @@ top_srcdir = @top_srcdir@
 @DSL_CPE_API_LIBRARY_BUILD_2_6_TRUE@@KERNEL_2_6_TRUE@noinst_LIBRARIES = lib_dsl_cpe_api.a
 @KERNEL_2_6_FALSE@noinst_LIBRARIES = lib_dsl_cpe_api.a
 @DEVICE_DANUBE_TRUE@bin_SCRIPTS = ../scripts/inst_drv_dsl_cpe_api_danube.sh
-@FW_R9_FALSE@VRX_HEADER_DIR = include/mcat3.0
+@FW_R9_FALSE@VRX_HEADER_DIR = include/mcat3.1
 @FW_R9_TRUE@VRX_HEADER_DIR = include/mcat2.7
 drv_dsl_cpe_api_includedir = $(includedir)
 drv_dsl_cpe_api_include_HEADERS = include/drv_dsl_cpe*.h
@@ -591,13 +591,13 @@ drv_vrx_specific_extra = \
 	include/mcat2.7/drv_dsl_cpe_vrx_msg_olr.h \
 	include/mcat2.7/drv_dsl_cpe_vrx_msg_perf_pmd.h \
 	include/mcat2.7/drv_dsl_cpe_vrx_msg_tc_counters.h \
-	include/mcat3.0/drv_dsl_cpe_vrx_msg_config_pmd.h \
-	include/mcat3.0/drv_dsl_cpe_vrx_msg_const.h \
-	include/mcat3.0/drv_dsl_cpe_vrx_msg_dmt_scope.h \
-	include/mcat3.0/drv_dsl_cpe_vrx_msg_ghs_status.h \
-	include/mcat3.0/drv_dsl_cpe_vrx_msg_olr.h \
-	include/mcat3.0/drv_dsl_cpe_vrx_msg_perf_pmd.h \
-	include/mcat3.0/drv_dsl_cpe_vrx_msg_tc_counters.h \
+	include/mcat3.1/drv_dsl_cpe_vrx_msg_config_pmd.h \
+	include/mcat3.1/drv_dsl_cpe_vrx_msg_const.h \
+	include/mcat3.1/drv_dsl_cpe_vrx_msg_dmt_scope.h \
+	include/mcat3.1/drv_dsl_cpe_vrx_msg_ghs_status.h \
+	include/mcat3.1/drv_dsl_cpe_vrx_msg_olr.h \
+	include/mcat3.1/drv_dsl_cpe_vrx_msg_perf_pmd.h \
+	include/mcat3.1/drv_dsl_cpe_vrx_msg_tc_counters.h \
 	include/drv_dsl_cpe_vrx_ctx.h \
 	../scripts/inst_drv_dsl_cpe_api_vrx.sh
 

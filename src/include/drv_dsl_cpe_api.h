@@ -673,6 +673,10 @@ typedef enum
 
    /** Line State: LOWPOWER_L3. */
    DSL_LINESTATE_LOWPOWER_L3       = 0x02000000,
+#ifdef DSL_VRX_DEVICE_VR11
+   /** Line State: POWER_DOWN */
+   DSL_LINESTATE_POWER_DOWN        = 0x02000010,
+#endif /* DSL_VRX_DEVICE_VR11 */
    /** Line State: All line states that are not assigned at the moment */
    DSL_LINESTATE_UNKNOWN           = 0x03000000
 
@@ -1058,8 +1062,14 @@ typedef enum
          more details on how the line can become disabled. */
    DSL_AUTOBOOT_STATUS_DISABLED = 7,
    /**
+   Autoboot handling is currently shutdown (incl. sync and power down). */
+   DSL_AUTOBOOT_STATUS_SHUTDOWN_PD = 8,
+   /**
+   Autoboot handling is currently stopped (in power down mode). */
+   DSL_AUTOBOOT_STATUS_STOPPED_PD = 9,
+   /**
    Delimiter only */
-   DSL_AUTOBOOT_STATUS_LAST = 8
+   DSL_AUTOBOOT_STATUS_LAST = 10
    /* Might be extended if necessary */
 } DSL_AutobootStatGet_t;
 
@@ -4476,7 +4486,14 @@ typedef struct
 typedef enum
 {
    /**
-   Stops the autoboot handling. */
+   Stops the autoboot handling.
+   This command will terminate the autoboot state machine handler. It will stop
+   according threads and also free up related memory.
+   \note This functionality should be used alone only for debug/test cases
+   \note This command will terminate the autoboot handling without any
+         dedicated synchronization of the current line state. This means that
+         the line will further operate in "free running" FW controlled mode (as
+         long as there is no interaction by the SW/API required. */
    DSL_AUTOBOOT_CTRL_STOP = 0,
    /**
    Starts the autoboot handling. */
@@ -4520,7 +4537,19 @@ typedef enum
               on-chip bonding) operation this command forces a hard reset
               whereas the standard command does a soft reset only to avoid
               tearing down both lines. */
-   DSL_AUTOBOOT_CTRL_RESTART_FULL = 6
+   DSL_AUTOBOOT_CTRL_RESTART_FULL = 6,
+   /**
+   Stops the autoboot handling, including synchronization and power down.
+   In addition to the standard DSL_AUTOBOOT_CTRL_STOP command this command
+   will take care on the following addition steps before stopping the autoboot
+   thread and cleaning up the related memory.
+   - Synchronization of the line state: It will be taken care that the line
+     is deactivated, which means that any existing link will be teared down
+   - Powering off the AFE and line driver */
+   DSL_AUTOBOOT_CTRL_STOP_PD = 7,
+   /**
+   Delimiter only! */
+   DSL_AUTOBOOT_CTRL_LAST = 8
 } DSL_AutobootCtrlSet_t;
 
 /**

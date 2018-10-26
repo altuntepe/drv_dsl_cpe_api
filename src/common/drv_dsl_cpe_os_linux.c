@@ -21,6 +21,8 @@
 
 #include <linux/device.h>
 
+#include "drv_mei_cpe_api_intern.h" /* MEI_InternalDevLayout */
+
 #undef DSL_DBG_BLOCK
 #define DSL_DBG_BLOCK DSL_DBG_OS
 
@@ -1244,6 +1246,30 @@ int __init DSL_ModuleInit(void)
 
    printk(DSL_DRV_CRLF DSL_DRV_CRLF "Lantiq CPE API Driver version: %s" DSL_DRV_CRLF,
       &(dsl_cpe_api_version[4]));
+
+   /** When autoload active */
+   if (g_MaxDeviceNumber == (IFX_uint8_t)(-1)
+      && g_LinesPerDevice == (IFX_uint8_t)(-1)
+      && g_ChannelsPerLine == (IFX_uint8_t)(-1))
+   {
+      DSL_uint32_t mei_MaxDeviceNumber = -1;
+      DSL_uint32_t mei_LinesPerDevice = -1;
+      DSL_uint32_t mei_ChannelsPerLine = -1;
+
+      printk(DSL_DRV_CRLF DSL_DRV_CRLF "Lantiq CPE API Driver - autoloading layout..." DSL_DRV_CRLF);
+
+      MEI_InternalGetDevLayout(
+                     &mei_MaxDeviceNumber,
+                     &mei_LinesPerDevice,
+                     &mei_ChannelsPerLine);
+
+      g_MaxDeviceNumber = (DSL_uint8_t)mei_MaxDeviceNumber;
+      g_LinesPerDevice = (DSL_uint8_t)mei_LinesPerDevice;
+      g_ChannelsPerLine = (DSL_uint8_t)mei_ChannelsPerLine;
+
+      debug_level = 3;
+   }
+
    printk(DSL_DRV_CRLF DSL_DRV_CRLF "Lantiq CPE API Device layout: %d devices"
           ", %d lines, %d channels" DSL_DRV_CRLF,g_MaxDeviceNumber, g_LinesPerDevice, g_ChannelsPerLine);
    if (

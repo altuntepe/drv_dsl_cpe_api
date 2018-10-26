@@ -44,7 +44,15 @@ VRX_MsgId_t DSL_DRV_VRX_g_MsgDumpBlacklist[]=
    {(DSL_uint16_t)(CMD_LINEFAILURENE_GET)    },
    { 0xFFFF }
 };
-#endif /* #ifdef DSL_DEBUG_DISABLE*/
+
+/** ARC to ME indication (NFC) */
+#define DSL_MBOX_CODE_NFC       0x01
+/** ARC to ME event (EVT) */
+#define DSL_MBOX_CODE_EVT       0x02
+/** ARC to ME event (ALM) */
+#define DSL_MBOX_CODE_ALM       0x04
+
+#endif /* #ifndef DSL_DEBUG_DISABLE*/
 
 static DSL_uint16_t g_VRxMsgWhitelist[] =
 {
@@ -170,6 +178,10 @@ static DSL_uint16_t g_VRxMsgWhitelist[] =
    CMD_PSD_CALIBRATION_US_SET,      /*     +     :      +      :       +      */
    CMD_TESTOPTIONSSET,              /*     +     :      +      :       +      */
    CMD_MODEMFSM_EVENTCONFIGURE,     /*     +     :      +      :       -      */
+#if defined (DSL_VRX_DEVICE_VR11)
+   CMD_ADSL_FEATUREMAPGET,          /*     +     :      +      :       +      */
+   CMD_VDSL_FEATUREMAPGET,          /*     +     :      +      :       +      */
+#endif
       /* Delimeter only*/
    0xFFFF
 };
@@ -1732,6 +1744,7 @@ static DSL_boolean_t DSL_DRV_VRX_CheckMessageDumpBlacklist(
 
 DSL_void_t DSL_DRV_VRX_DumpMessage(
    DSL_Context_t *pContext,
+   const DSL_uint16_t nClass,
    const DSL_uint16_t nMsgId,
    const DSL_uint16_t *pData,
    const DSL_uint16_t nSize,
@@ -1740,7 +1753,7 @@ DSL_void_t DSL_DRV_VRX_DumpMessage(
    static const DSL_uint16_t *pMsg16;
    static const DSL_uint32_t *pMsg32;
    DSL_DBG_ModuleLevel_t dbgmlData;
-   DSL_boolean_t bPrint = DSL_FALSE, bDirSet = DSL_FALSE;
+   DSL_boolean_t bPrint = DSL_FALSE, bDirSet = DSL_FALSE, bAutoMsg = DSL_FALSE;
    DSL_uint8_t i;
 
    dbgmlData.data.nDbgLevel  = DSL_DBG_NONE;
@@ -1804,10 +1817,17 @@ DSL_void_t DSL_DRV_VRX_DumpMessage(
 
    if (bPrint == DSL_TRUE)
    {
+      if((nClass & 0x00FF) == DSL_MBOX_CODE_NFC ||
+         (nClass & 0x00FF) == DSL_MBOX_CODE_EVT ||
+         (nClass & 0x00FF) == DSL_MBOX_CODE_ALM)
+      {
+         bAutoMsg = DSL_TRUE;
+      }
+
       DSL_DRV_debug_printf(pContext, "DSL[%02d/%s]: 0x%04x 0x%04x 0x%04x",
                            DSL_DEV_NUM(pContext),
-                           bReceive == DSL_TRUE ? "rx" : "tx", nMsgId,
-                           pData[0], pData[1]);
+                           bReceive == DSL_TRUE ? (bAutoMsg == DSL_TRUE ? "ev" : "rx") : "tx",
+                           nMsgId, pData[0], pData[1]);
 
       /* decide wether to interpret the rest as 16 or 32 bit */
       if (nMsgId & VDSL2_MBX_MSG_ID_IFX_MASK)
@@ -1853,6 +1873,12 @@ DSL_Error_t DSL_DRV_VRX_ChReadMessage(
          nErrCode = DSL_SUCCESS;
       else
          nErrCode = DSL_ERROR;
+
+#ifndef DSL_DEBUG_DISABLE
+      DSL_DRV_VRX_DumpMessage(pContext, pMsg->msgClassifier,
+         pMsg->msgId, (DSL_uint16_t *)pMsg->pPayload,
+         (DSL_uint16_t)pMsg->paylSize_byte, DSL_TRUE);
+#endif /* #ifndef DSL_DEBUG_DISABLE*/
    }
    else
       nErrCode = DSL_ERROR;
@@ -1878,8 +1904,8 @@ DSL_Error_t DSL_DRV_VRX_ChRequestMessage(
    DSL_CHECK_ERR_CODE();
 
 #ifndef DSL_DEBUG_DISABLE
-   DSL_DRV_VRX_DumpMessage(pContext, pRw->write_msg.msgId,
-      (DSL_uint16_t *)pRw->write_msg.pPayload,
+   DSL_DRV_VRX_DumpMessage(pContext, pRw->write_msg.msgClassifier,
+      pRw->write_msg.msgId, (DSL_uint16_t *)pRw->write_msg.pPayload,
       (DSL_uint16_t)pRw->write_msg.paylSize_byte, DSL_FALSE);
 #endif /* #ifndef DSL_DEBUG_DISABLE*/
 
@@ -1903,8 +1929,8 @@ DSL_Error_t DSL_DRV_VRX_ChRequestMessage(
 
 #ifndef DSL_DEBUG_DISABLE
    /* if ret was ok, pRw contains the proper answer already */
-   DSL_DRV_VRX_DumpMessage(pContext, pRw->ack_msg.msgId,
-      (DSL_uint16_t *)pRw->ack_msg.pPayload,
+   DSL_DRV_VRX_DumpMessage(pContext, pRw->ack_msg.msgClassifier,
+      pRw->ack_msg.msgId, (DSL_uint16_t *)pRw->ack_msg.pPayload,
       (DSL_uint16_t)pRw->ack_msg.paylSize_byte, DSL_TRUE);
 #endif /* #ifndef DSL_DEBUG_DISABLE*/
 
@@ -6587,9 +6613,15 @@ DSL_Error_t DSL_DRV_VRX_SendMsgModemFSMEventConfigure(
    memset(&sCmd, 0, sizeof(sCmd));
    memset(&sAck, 0, sizeof(sAck));
 
-   sCmd.Length = 1;
-   sCmd.E15 = sCmd.E14 = sCmd.E13 = sCmd.E12 = sCmd.E11 = sCmd.E10 = sCmd.E9 = sCmd.E8 = flag;
+#if defined (DSL_VRX_DEVICE_VR11)
+   sCmd.Length = 2;
+   sCmd.E16 = sCmd.E15 = sCmd.E14 = sCmd.E13 = sCmd.E12 = sCmd.E11 = sCmd.E10 = sCmd.E9 = sCmd.E8 = flag;
    sCmd.E7 = sCmd.E6 = sCmd.E5 = sCmd.E4 = sCmd.E3 = sCmd.E2 = sCmd.E1 = sCmd.E0 = flag;
+#else
+   sCmd.Length = 1;
+   sCmd.E13 = sCmd.E12 = sCmd.E11 = sCmd.E10 = sCmd.E9 = sCmd.E8 = flag;
+   sCmd.E6 = sCmd.E5 = sCmd.E4 = sCmd.E3 = sCmd.E2 = sCmd.E0 = flag;
+#endif /* defined (DSL_VRX_DEVICE_VR11) */
 
    nErrCode = DSL_DRV_VRX_SendMessage( pContext, CMD_MODEMFSM_EVENTCONFIGURE,
                   sizeof(CMD_ModemFSM_EventConfigure_t), (DSL_uint8_t *)&sCmd,
@@ -6601,5 +6633,47 @@ DSL_Error_t DSL_DRV_VRX_SendMsgModemFSMEventConfigure(
 
    return (nErrCode);
 }
+
+#if defined(DSL_VRX_DEVICE_VR11)
+DSL_Error_t DSL_DRV_VRX_SendMsgFeatureMapGet(
+   DSL_Context_t *pContext,
+   DSL_uint8_t *pAck)
+{
+   DSL_Error_t nErrCode = DSL_SUCCESS;
+   /* Assume that xDSL messages have same format */
+   CMD_ADSL_FeatureMapGet_t sCmd;
+   union
+   {
+      ACK_ADSL_FeatureMapGet_t AFM;
+      ACK_VDSL_FeatureMapGet_t VFM;
+   } sAck;
+
+   DSL_CHECK_CTX_POINTER(pContext);
+   DSL_CHECK_ERR_CODE();
+
+   DSL_DEBUG( DSL_DBG_MSG,
+      (pContext, SYS_DBG_MSG"DSL[%02d]: IN - DSL_DRV_VRX_SendMsgFeatureMapGet"
+      DSL_DRV_CRLF, DSL_DEV_NUM(pContext)));
+
+   memset(&sCmd, 0, sizeof(sCmd));
+   sCmd.Length = DSL_VRX_16BIT_RD_MSG_LEN_GET(sAck.AFM);
+
+   nErrCode = DSL_DRV_VRX_SendMessage(pContext,
+      DSL_DRV_VRX_FirmwareXdslModeCheck(pContext, DSL_VRX_FW_VDSL2) ? CMD_VDSL_FEATUREMAPGET : CMD_ADSL_FEATUREMAPGET,
+      sizeof(sCmd), (DSL_uint8_t*)&sCmd,
+      sizeof(ACK_ADSL_FeatureMapGet_t), (DSL_uint8_t*)&sAck);
+
+   if (nErrCode >= DSL_SUCCESS)
+   {
+      memcpy(pAck, &sAck, sizeof(ACK_ADSL_FeatureMapGet_t));
+   }
+
+   DSL_DEBUG( DSL_DBG_MSG,
+      (pContext, SYS_DBG_MSG"DSL[%02d]: OUT - DSL_DRV_VRX_SendMsgFeatureMapGet"
+      DSL_DRV_CRLF, DSL_DEV_NUM(pContext)));
+
+   return (nErrCode);
+}
+#endif /* (DSL_VRX_DEVICE_VR11) */
 
 #endif /* #ifdef INCLUDE_DSL_CPE_API_VRX*/

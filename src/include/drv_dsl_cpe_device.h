@@ -200,6 +200,21 @@ DSL_Error_t DSL_DRV_DEV_LinkTerminate(
 
 #endif
 
+/**
+   This routine powers down link and de facto terminate all actions within DSL API
+
+   \param pContext
+      pointer to the DSL context
+*/
+
+#ifndef SWIG
+#if defined(DSL_VRX_DEVICE_VR11)
+DSL_Error_t DSL_DRV_DEV_LinkPowerDown(
+   DSL_Context_t *pContext
+);
+#endif
+#endif
+
 DSL_Error_t DSL_DRV_DEV_XtseSettingsCheck(
    DSL_IN DSL_Context_t *pContext,
    DSL_IN DSL_uint8_t *pXTSE);

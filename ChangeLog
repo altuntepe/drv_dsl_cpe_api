@@ -1,5 +1,24 @@
 NEXT VERSION
 
+V4.20.1.2 - 2018-08-16
+common:
+- VRX (DSLCPE_SW-1160) Release of memory within PM initialization sequence
+  missing in some error conditions
+
+V4.20.1.1 - 2018-08-02
+common:
+- VRX (DSLCPE_SW-1150) Shutdown sequence does not work correctly for UGW-8.x
+
+V4.20.1 - 2018-06-28
+-
+
+V4.20.0 - 2018-05-30
+common:
+- VRX (DSLCPE_SW-1098) Power Saving Support by the DSL-API
+- VRX (DSLCPE_SW-1119) Update MCAT header files to latest revision (Rev.3.1)
+- VRX (DSLCPE_SW-1118) Bugfixes for implementation changes of event handling
+- VRX (DSLCPE_SW-1104) Improvement for Firmware message dump module
+
 V4.19.3 - 2017-12-06
 common:
 - VRX (DSLCPE_SW-1116) Intra DTU must be enabled for R5 firmware
