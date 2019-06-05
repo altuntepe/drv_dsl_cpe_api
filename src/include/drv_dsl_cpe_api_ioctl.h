@@ -346,8 +346,9 @@ typedef union
    CLI
    - n/a
    - Note: This ioctl is called within context of starting up the control
-           application in case of using '-i' option, also refer to UMPR
-           "Command line arguments for the DSL CPE Control Application"
+           application in case of using '-i' option, also refer to the
+           description of "Command line arguments for the DSL CPE Control
+           Application" within Programmer's Reference.
 
    \param DSL_Init_t*
       The parameter points to a \ref DSL_Init_t structure
@@ -1128,7 +1129,7 @@ typedef union
    CLI
    - Not applicable for CLI interface
    - Note: This ioctl is called within context of exception handling in case of
-           ADSL only platform build. Also refer to the UMPR,
+           ADSL only platform build. Also refer to the Programmers's Reference
            - configure option: --enable-adsl-trace
            - event type: DSL_EVENT_S_SHOWTIME_LOGGING
 
@@ -1142,7 +1143,7 @@ typedef union
 
    \remarks
    Supported by
-   - ADSL only platforms (XWAY(TM) ARX100 and XWAY(TM) ARX300)
+   - ADSL only platforms (ARX100 and ARX300)
 
    \code
       DSL_ShowtimeLogging_t data;
@@ -1373,7 +1374,8 @@ typedef union
    CLI
    - Not applicable for CLI interface
    - Note: This ioctl is called within context of event handling within control
-           application. Also refer to the UMPR "Event Handling"
+           application. Also refer to the "Event Handling" description within
+           Programmer's Reference.
 
    \param DSL_EventStatus_t*
       The parameter points to a \ref DSL_EventStatus_t structure
@@ -1400,7 +1402,7 @@ typedef union
 
 /**
    This function has to be used to initialize instance specific handling.
-   Usually this function shall be called directly after using \ref DSL_FIO_INIT
+   Usually this function shall be called directly before using \ref DSL_FIO_INIT
    ioctl.
 
    CLI
@@ -1558,7 +1560,7 @@ typedef union
 
    \remarks
    Supported by
-   - ADSL only platforms (XWAY(TM) ARX100, XWAY(TM) ARX300)
+   - ADSL only platforms (ARX100, ARX300)
 
    \code
       DSL_InteropFeatureConfig_t interopFeatureConfig;
@@ -1590,7 +1592,7 @@ typedef union
 
    \remarks
    Supported by
-   - ADSL only platforms (XWAY(TM) ARX100, XWAY(TM) ARX300)
+   - ADSL only platforms (ARX100, ARX300)
 
    \code
       DSL_InteropFeatureConfig_t interopFeatureConfig;
@@ -1654,7 +1656,7 @@ typedef union
 
    \remarks
    Supported by
-   - ADSL only platforms (XWAY(TM) ARX100, XWAY(TM) ARX300)
+   - ADSL only platforms (ARX100, ARX300)
 
    \code
       DSL_MiscLineStatus_t miscLineStatus;
@@ -1717,7 +1719,7 @@ typedef union
       is included within accessCtl structure of user data.
 
    \remarks
-   - Supported by ADSL only platforms (XWAY(TM) ARX100, XWAY(TM) ARX300)
+   - Supported by ADSL only platforms (ARX100, ARX300)
    - Please note that a change of this configuration setting(s) will be only
      effective after restarting the autoboot handling using ioctl
      \ref DSL_FIO_AUTOBOOT_CONTROL_SET with command \ref DSL_AUTOBOOT_CTRL_RESTART
@@ -1752,7 +1754,7 @@ typedef union
 
    \remarks
    Supported by
-   - ADSL only platforms (XWAY(TM) ARX100, XWAY(TM) ARX300)
+   - ADSL only platforms (ARX100, ARX300)
 
    \code
       DSL_LineOptionsConfig_t lineOptionsConfig;
@@ -1820,7 +1822,7 @@ typedef union
 
    \remarks
    Supported by
-   - ADSL only platforms (XWAY(TM) ARX100, XWAY(TM) ARX300)
+   - ADSL only platforms (ARX100, ARX300)
 
    \code
       DSL_DBG_DebugFeatureConfig_t dbgDebugFeatureConfig;
@@ -1858,7 +1860,7 @@ typedef union
 
    \remarks
    Supported by
-   - ADSL only platforms (XWAY(TM) ARX100, XWAY(TM) ARX300)
+   - ADSL only platforms (ARX100, ARX300)
 
    \code
       DSL_DBG_DebugFeatureConfig_t dbgDebugFeatureConfig;
@@ -2436,8 +2438,9 @@ typedef union
    CLI
    - n/a
    - Note: This ioctl is called within context of starting up the control
-           application in case of using '-i' option, also refer to UMPR
-           "Command line arguments for the DSL CPE Control Application"
+           application in case of using '-i' option, also refer to the
+           description of "Command line arguments for the DSL CPE Control
+           Application" within Programmer's Reference.
 
    \param DSL_BND_HwInit_t*
       The parameter points to a \ref DSL_BND_HwInit_t structure
@@ -2449,10 +2452,10 @@ typedef union
 
    \remarks
    Supported by
-   - XWAY(TM) VRX200: xDSL-CPE
+   - VRX200: xDSL-CPE
 
-   \note This ioctl is reserved for future usage on XWAY(TM) VRX200. This means
-         there is currently no functionality included.
+   \note This ioctl is reserved for future usage on VRX200. This means there is
+         currently no functionality included.
 
    \code
       DSL_BND_HwInit_t BND_HwInit;
@@ -2718,7 +2721,7 @@ typedef union
 
    \remarks
    Supported by
-   - XWAY(TM) VRX200: xDSL-CPE
+   - VRX200: xDSL-CPE
 
    \code
       DSL_BND_PortModeSync_t BND_PortModeSync;
@@ -3215,7 +3218,7 @@ typedef union
 
    \remarks
    Supported by
-   - ADSL only platforms (XWAY(TM) ARX100, XWAY(TM) ARX300)
+   - ADSL only platforms (ARX100, ARX300)
 
    \code
       DSL_G997_LastStateTransmitted_t lastStateTransmitted;
@@ -3792,10 +3795,10 @@ typedef union
    - long command: G997_DeltFreeResources
    - short command: g997dfr
    - Note: This ioctl usage only makes sense in case of using dynamically
-           allocated diagnostic data (DELT) memory. Also refer to the UMPR
-           configure option: "--enable-dsl-delt-static=no".
-           In that case and after a DELT measurement has taken place the
-           API internal memory could be freed by using this function.
+           allocated diagnostic data (DELT) memory. Also refer to the configure
+           option "--enable-dsl-delt-static=no" within Programmer's Reference.
+           In that case and after a DELT measurement has taken place the API
+           internal memory could be freed by using this function.
 
    \return
       0 if successful and -1 in case of an error/warning
@@ -3832,7 +3835,7 @@ typedef union
 
    \remarks
    Supported by
-   - ADSL only platforms (XWAY(TM) ARX100, XWAY(TM) ARX300)
+   - ADSL only platforms (ARX100, ARX300)
 
    \code
       DSL_G997_Snmp_t snmpData;
@@ -3865,7 +3868,7 @@ typedef union
 
    \remarks
    Supported by
-   - ADSL only platforms (XWAY(TM) ARX100, XWAY(TM) ARX300)
+   - ADSL only platforms (ARX100, ARX300)
 
    \code
       DSL_G997_Snmp_t snmpData;
@@ -3965,7 +3968,7 @@ typedef union
 
    \remarks
    Supported by
-   - ADSL only platforms (XWAY(TM) ARX100, XWAY(TM) ARX300)
+   - ADSL only platforms (ARX100, ARX300)
 
    \code
       DSL_G997_RateAdaptationStatus_t raStatGet;
@@ -5532,7 +5535,7 @@ typedef union
 
    \remarks
    Supported by
-   - ADSL only platforms (XWAY(TM) ARX100, XWAY(TM) ARX300)
+   - ADSL only platforms (ARX100, ARX300)
 
    \code
       DSL_PM_ChannelCountersExt_t pmChannelCountersExt;
@@ -6345,7 +6348,7 @@ typedef union
 
    \remarks
    Supported by
-   - ADSL only platforms (XWAY(TM) ARX100, XWAY(TM) ARX300)
+   - ADSL only platforms (ARX100, ARX300)
 
    \code
       DSL_RTT_Init_t RTT_Init;
@@ -6377,7 +6380,7 @@ typedef union
 
    \remarks
    Supported by
-   - ADSL only platforms (XWAY(TM) ARX100, XWAY(TM) ARX300)
+   - ADSL only platforms (ARX100, ARX300)
    \remarks
    - Please note that a change of this configuration setting(s) will be only
      effective after restarting the autoboot handling using ioctl
@@ -6416,7 +6419,7 @@ typedef union
 
    \remarks
    Supported by
-   - ADSL only platforms (XWAY(TM) ARX100, XWAY(TM) ARX300)
+   - ADSL only platforms (ARX100, ARX300)
 
    \code
       DSL_RTT_Config_t RTT_Config;
@@ -6448,7 +6451,7 @@ typedef union
 
    \remarks
    Supported by
-   - ADSL only platforms (XWAY(TM) ARX100, XWAY(TM) ARX300)
+   - ADSL only platforms (ARX100, ARX300)
 
    \code
       DSL_RTT_Status_t DSL_RTT_Status;
@@ -6481,7 +6484,7 @@ typedef union
 
    \remarks
    Supported by
-   - ADSL only platforms (XWAY(TM) ARX100, XWAY(TM) ARX300)
+   - ADSL only platforms (ARX100, ARX300)
 
    \code
       DSL_RTT_Control_t RTT_Control;
@@ -6516,7 +6519,7 @@ typedef union
 
    \remarks
    Supported by
-   - ADSL only platforms (XWAY(TM) ARX100, XWAY(TM) ARX300)
+   - ADSL only platforms (ARX100, ARX300)
 
    \code
       DSL_RTT_Statistics_t RTT_Config;

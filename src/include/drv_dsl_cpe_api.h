@@ -764,32 +764,38 @@ typedef struct
    hw_platform.feature_set.major_ver.minor_ver.rel_indication.application
 
    Hardware platform (hw_platform):
-   - 0x01: XWAY(TM) AMAZON Family (not covered by DSL CPE API!)
-   - 0x02: XWAY(TM) DANUBE Family (not supported anymore)
-   - 0x03: XWAY(TM) AMAZON-SE Family (not supported anymore)
-   - 0x04: XWAY(TM) ARX100 Family
-   - 0x05: XWAY(TM) VRX200 Family
-   - 0x06: XWAY(TM) ARX300 Family
-   - 0x07: XWAY(TM) VRX300 Family
-   - 0x08: XWAY(TM) VRX500 Family
+
+   - 0x01: AMAZON Family (not covered by DSL CPE API!)
+   - 0x02: DANUBE Family (not supported anymore)
+   - 0x03: AMAZON-SE Family (not supported anymore)
+   - 0x04: ARX100 Family
+   - 0x05: VRX200 Family
+   - 0x06: ARX300 Family
+   - 0x07: VRX300 Family
+   - 0x08: VRX500 Family
 
    Feature set (feature_set)
+
    - Indicates the major feature set implementation for firmware (please refer
      to firmware documentation and/or contact Intel for detailed informations).
 
    Major version (major_ver)
+
    - Logical number (incremented for major updates of firmware)
 
    Minor version (minor_ver)
+
    - Logical number (incremented for minor updates of firmware)
 
    Release indication (rel_indication)
+
    - 0x00: RELEASE_STATUS_RELEASED, The firmware has been tested and released.
    - 0x01: RELEASE_STATUS_PRE_RELEASE, The firmware is undergoing the release
            process; the release has not been completed.
 
    Application type (application)
    The following application types are defined.
+
    - 0x01: ADSL Annex A
    - 0x02: ADSL Annex B
    - 0x06: VDSL
@@ -1212,12 +1218,10 @@ typedef struct
    /**
    Retransmission (ReTx) config/status value.
 
-   \note Currently the ReTx feature is only supported for downstream direction.
-         Therefore configurations are only possible for downstream and will be
-         ignored for upstream. Additionally a warning
-         \ref DSL_WRN_CONFIG_PARAM_IGNORED is returned in that case.
-   \note In case of using a VDSL capable platform the configuration is only
-         valid in case of using VDSL link activation mode. */
+   \note In case of operating a VRX family based system, retransmission (ReTx)
+         configuration for US can only be enabled together with ReTx
+         configuration for DS. This means that ReTx for DS needs to be enabled
+         first. */
    DSL_CFG DSL_boolean_t bReTxEnable;
    /**
    Virtual noise config/status value.
@@ -1225,7 +1229,7 @@ typedef struct
    \note The status value for virtual noise is directly derived from the
          configuration value (configuration value only) for ADSL only capable
          platforms.
-   \note Supported by XWAY(TM) VR200 and XWAY(TM) VR300  */
+   \note Supported by VR200 and VR300 */
    DSL_CFG DSL_boolean_t bVirtualNoiseSupport;
    /**
    20 bit constellation config/status value.
@@ -4502,7 +4506,7 @@ typedef enum
    Restarts the firmware and the DSL CPE API for usage of updated configurations.
    \note The standard handling for this command is to perform a hard reset (full
          firmware download, including a reset and writing the firmware)
-   \note In case of using XWAY(TM) VRX200 and activated bonded (dual-port mode,
+   \note In case of using VR200 and activated bonded (dual-port mode,
          on-chip bonding) operation this command performs a soft reset instead
          (using firmware message CMD_ModemFSM_StateSet:LinkControl=0) */
    DSL_AUTOBOOT_CTRL_RESTART = 2,
@@ -4533,7 +4537,7 @@ typedef enum
    and writing the firmware).
    \attention In non-bonded operation this command is equivalent to the standard
               autoboot restart command \ref DSL_AUTOBOOT_CTRL_RESTART. In case
-              of using XWAY(TM) VRX200 and activated bonded (dual-port mode,
+              of using VR200 and activated bonded (dual-port mode,
               on-chip bonding) operation this command forces a hard reset
               whereas the standard command does a soft reset only to avoid
               tearing down both lines. */
@@ -4779,7 +4783,7 @@ typedef struct
 /**
    Defines the control functionalities of the autoboot handling
    \note Please note that this configurations are only used for ADSL only
-         platforms such like XWAY(TM) ARX100 and XWAY(TM) ARX300
+         platforms such like ARX100 and ARX300
 */
 typedef enum
 {
@@ -4834,7 +4838,7 @@ typedef enum
 /**
    Structure used for configuration of MinSnrMarging reboot criteria.
    \note Please note that this configurations are only used for ADSL only
-         platforms such like XWAY(TM) ARX100 and XWAY(TM) ARX300
+         platforms such like ARX100 and ARX300
 */
 typedef struct
 {

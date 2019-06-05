@@ -778,6 +778,7 @@ DSL_int_t DSL_DRV_PM_ThreadNe(DSL_DRV_ThreadParams_t *param)
    DSL_int_t nOsRet = 0;
    DSL_Context_t *pContext = (DSL_Context_t*)param->nArg1;
    DSL_uint32_t startTime, stopTime;
+   DSL_boolean_t bPowerDown = DSL_FALSE;
 
    DSL_DEBUG( DSL_DBG_MSG,
       (pContext, SYS_DBG_MSG"DSL[%02d]: IN - DSL_DRV_PM_ThreadNe"
@@ -812,6 +813,10 @@ DSL_int_t DSL_DRV_PM_ThreadNe(DSL_DRV_ThreadParams_t *param)
                               DSL_DRV_PM_CONTEXT(pContext)->pmThreadNe.nThreadPollTime);
 
       if (DSL_DRV_SIGNAL_PENDING)
+         break;
+
+      DSL_CTX_READ_SCALAR(pContext, nErrCode, bPowerDown, bPowerDown);
+      if (bPowerDown)
          break;
 
       /* Get Start Time*/
@@ -906,6 +911,7 @@ DSL_int_t DSL_DRV_PM_ThreadFe(DSL_DRV_ThreadParams_t *param)
    DSL_int_t nOsRet = 0;
    DSL_Context_t *pContext = (DSL_Context_t*)param->nArg1;
    DSL_uint32_t startTime, stopTime;
+   DSL_boolean_t bPowerDown = DSL_FALSE;
 
    DSL_DEBUG( DSL_DBG_MSG,
       (pContext, SYS_DBG_MSG"DSL[%02d]: IN - DSL_DRV_PM_ThreadFe"
@@ -938,6 +944,10 @@ DSL_int_t DSL_DRV_PM_ThreadFe(DSL_DRV_ThreadParams_t *param)
                               DSL_DRV_PM_CONTEXT(pContext)->pmThreadFe.nThreadPollTime);
 
       if (DSL_DRV_SIGNAL_PENDING)
+         break;
+
+      DSL_CTX_READ_SCALAR(pContext, nErrCode, bPowerDown, bPowerDown);
+      if (bPowerDown)
          break;
 
       /* Get Start Time*/
@@ -6748,10 +6758,41 @@ DSL_Error_t DSL_DRV_PM_Resume(
    DSL_Context_t *pContext)
 {
    DSL_Error_t nErrCode = DSL_SUCCESS;
+   unsigned int i = 3;
 
-   if (DSL_DRV_PM_CONTEXT(pContext) == DSL_NULL)
+   /* Loop for 3 iterations at max with sleep of max 3 secs to avoid contention between
+   PM thread not getting initialized, when autoboot thread is trying to do PM_RESUME
+   Probably the best way will be to synchronize autoboot thread and PM_thread during init
+   In our tests we see that it passes in 1 loop itself at max, but 3 for safeside
+   This is a workqround, needs a proper fix. */
+
+   while(i > 0)
    {
-      return DSL_ERR_POINTER;
+      i--;
+
+      if (DSL_DRV_PM_CONTEXT(pContext) == DSL_NULL)
+      {
+         DSL_DEBUG(DSL_DBG_ERR,
+            (pContext, SYS_DBG_ERR"DSL[%02d]: ERROR - PM context NULL Retry after 1 sec"
+            DSL_DRV_CRLF, DSL_DEV_NUM(pContext)));
+      }
+      else
+      {
+         break;
+      }
+
+      /* Didn't find it even after three iterations, something really wrong, so exit */
+      if (i == 0)
+      {
+         DSL_DEBUG(DSL_DBG_ERR,
+            (pContext, SYS_DBG_ERR"DSL[%02d]: ERROR - PM context NULL Returning"
+            DSL_DRV_CRLF, DSL_DEV_NUM(pContext)));
+
+         return DSL_ERR_POINTER;
+      }
+
+      /* Sleep for 1 sec and check again */
+      msleep(1000);
    }
 
    if (DSL_DRV_PM_CONTEXT(pContext)->bPmLock)

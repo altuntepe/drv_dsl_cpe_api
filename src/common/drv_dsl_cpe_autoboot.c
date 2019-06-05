@@ -577,7 +577,14 @@ DSL_Error_t DSL_DRV_AutobootStateCheck(
 
       case DSL_AUTOBOOTSTATE_CONFIG_WRITE_WAIT:
 #if defined (DSL_VRX_DEVICE_VR11)
-         DSL_DRV_AutobootHandlePowerDown(pContext);
+         nErrCode = DSL_DRV_AutobootHandlePowerDown(pContext);
+
+         if (nErrCode != DSL_SUCCESS)
+         {
+            DSL_DEBUG(DSL_DBG_ERR, (pContext, SYS_DBG_ERR
+               "DSL[%02d]: ERROR - DSL_DRV_AutobootHandlePowerDown returned=%d!"
+               DSL_DRV_CRLF, DSL_DEV_NUM(pContext), nErrCode));
+         }
 #endif
 
          /* Wait for the external trigger to continue Autoboot processing*/
@@ -1933,32 +1940,28 @@ static DSL_Error_t DSL_DRV_AutobootHandlePowerDown(
    DSL_Error_t nErrCode = DSL_SUCCESS;
    DSL_boolean_t bPowerDown = DSL_FALSE, bPoweredDown = DSL_FALSE;
    DSL_DEV_VersionCheck_t nVerCheck = 0;
-   ACK_ADSL_FeatureMapGet_t nFeatureMapGetAck;
+   ACK_ADSL_FeatureMapGet_t nFeatureMapGetAck = { 0 };
 
    DSL_CTX_READ_SCALAR(pContext, nErrCode, bPowerDown, bPowerDown);
 
    if (bPowerDown)
    {
-      nErrCode = DSL_DRV_VRX_FirmwareVersionCheck(pContext,
-                  DSL_MIN_FW_VERSION_VR11_R4MR2, &nVerCheck);
-
-      if (nErrCode != DSL_SUCCESS)
+      if (DSL_DRV_VRX_FirmwareXdslModeCheck(pContext, DSL_VRX_FW_VDSL2))
       {
-         DSL_DEBUG(DSL_DBG_ERR, (pContext, SYS_DBG_ERR
-            "DSL[%02d]: ERROR - FW version check failed!"
-            DSL_DRV_CRLF, DSL_DEV_NUM(pContext)));
+         nErrCode = DSL_DRV_VRX_FirmwareVersionCheck(pContext,
+                       DSL_MIN_FW_VERSION_VR11_PD, &nVerCheck);
       }
-      else if (nVerCheck >= DSL_VERSION_EQUAL)
+      else
+      {
+         nErrCode = DSL_DRV_VRX_FirmwareVersionCheck(pContext,
+                       DSL_MIN_FW_VERSION_VR11_PD_ADSL, &nVerCheck);
+      }
+
+      if (nErrCode == DSL_SUCCESS && nVerCheck >= DSL_VERSION_EQUAL)
       {
          nErrCode = DSL_DRV_VRX_SendMsgFeatureMapGet(pContext, (DSL_uint8_t *) &nFeatureMapGetAck);
 
-         if (nErrCode != DSL_SUCCESS )
-         {
-            DSL_DEBUG( DSL_DBG_ERR,
-               (pContext, SYS_DBG_ERR"DSL[%02d]: ERROR - Feature Map get failed!"
-               DSL_DRV_CRLF, DSL_DEV_NUM(pContext)));
-         }
-         else if (nFeatureMapGetAck.W0F12)
+         if (nErrCode == DSL_SUCCESS && nFeatureMapGetAck.W0F12 == VRX_ENABLE)
          {
             bPoweredDown = DSL_TRUE;
 
@@ -1970,12 +1973,8 @@ static DSL_Error_t DSL_DRV_AutobootHandlePowerDown(
              */
             pContext->bAutobootThreadShutdown = DSL_TRUE;
 
-
 #ifdef INCLUDE_DSL_PM
-            /* Suspend PM module*/
-            nErrCode = DSL_DRV_PM_Suspend(pContext);
-
-            if (nErrCode != DSL_SUCCESS)
+            if (DSL_DRV_PM_Suspend(pContext) != DSL_SUCCESS)
             {
                DSL_DEBUG( DSL_DBG_ERR,
                   (pContext, SYS_DBG_ERR"DSL[%02d]: ERROR - PM module suspend failed!"
@@ -1991,13 +1990,21 @@ static DSL_Error_t DSL_DRV_AutobootHandlePowerDown(
                "DSL[%02d]: Powering down..."
                DSL_DRV_CRLF, DSL_DEV_NUM(pContext)));
          }
+         else if (nFeatureMapGetAck.W0F12 == VRX_DISABLE)
+         {
+            DSL_DEBUG( DSL_DBG_WRN,
+               (pContext, SYS_DBG_WRN"DSL[%02d]: Feature-Bit12 is disabled!"
+               DSL_DRV_CRLF, DSL_DEV_NUM(pContext)));
+
+            nErrCode = DSL_ERR_NOT_SUPPORTED_BY_FIRMWARE;
+         }
       }
       else
       {
          nErrCode = DSL_ERR_NOT_SUPPORTED_BY_FIRMWARE;
       }
 
-      if(bPoweredDown == DSL_FALSE)
+      if (bPoweredDown == DSL_FALSE)
       {
          DSL_CTX_WRITE_SCALAR(pContext, nErrCode, bPowerDown, DSL_FALSE);
       }

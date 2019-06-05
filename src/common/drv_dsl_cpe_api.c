@@ -6869,11 +6869,6 @@ DSL_Error_t DSL_DRV_IoctlHandle(
                         SYS_DBG_ERR"DSL[%02d]: ERROR - VRx NFC set callback failed!"
                         DSL_DRV_CRLF, DSL_DEV_NUM(pContext)));
                   }
-                  else
-                  {
-                     /* Try to send but do not forward error in case of very early cli ics execute */
-                     DSL_DRV_VRX_SendMsgModemFSMEventConfigure(pContext, bFwEventActivation);
-                  }
                }
                else
                {
@@ -6888,6 +6883,8 @@ DSL_Error_t DSL_DRV_IoctlHandle(
                      nErrCode = DSL_ERROR;
                   }
                }
+               /* Try to send but do not forward error in case of very early cli ics execute */
+               DSL_DRV_VRX_SendMsgModemFSMEventConfigure(pContext, bFwEventActivation);
 
                if (DSL_DRV_BONDING_ENABLED && DSL_DRV_LINES_PER_DEVICE == 1)
                {

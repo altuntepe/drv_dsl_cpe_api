@@ -170,7 +170,7 @@
 #define PACKAGE_NAME "DSL CPE API driver"
 
 /* Define to the full name and version of this package. */
-#define PACKAGE_STRING "DSL CPE API driver 4.20.1.2"
+#define PACKAGE_STRING "DSL CPE API driver 4.20.1.2.0"
 
 /* Define to the one symbol short name of this package. */
 #define PACKAGE_TARNAME "drv_dsl_cpe_api"
@@ -179,7 +179,7 @@
 #define PACKAGE_URL ""
 
 /* Define to the version of this package. */
-#define PACKAGE_VERSION "4.20.1.2"
+#define PACKAGE_VERSION "4.20.1.2.0"
 
 /* Version number of package */
-#define VERSION "4.20.1.2"
+#define VERSION "4.20.1.2.0"

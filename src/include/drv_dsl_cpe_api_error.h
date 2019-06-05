@@ -252,20 +252,21 @@ typedef enum
    /** One or more parameters are ignored */
    DSL_WRN_CONFIG_PARAM_IGNORED = 4,
    /** This warning is used in case of an event was lost.
-   This could happen due to the following reasons
-   - polling cycle within polling based event handling is to slow
-   - system overload respective improper priorities within interrupt based
-     event handling
-   Also refer to "Event Handling" chapter within UMPR to get all the details. */
+       This could happen due to the following reasons
+       - polling cycle within polling based event handling is to slow
+       - system overload respective improper priorities within interrupt based
+         event handling
+       Also refer to the "Event Handling" chapter within Programmer's Reference
+       for more details. */
    DSL_WRN_EVENT_FIFO_OVERFLOW  = 5,
-   /** The ioctl function that has been used is deprecated.
-   Please do not use this function anymore. Refer to the according documentation
-   (release notes and/or User's Manual Programmer's Reference [UMPR]) of
-   the DSL CPE API to find the new function that has to be used. */
+   /** The function which has been used is deprecated.
+       Please do not use this function anymore. Refer to the according
+       documentation (Release Notes and/or Programmer's Reference [PR]) of the
+       DSL CPE API to find a new function that has to be used. */
    DSL_WRN_DEPRECATED  = 6,
-   /** This warning occurs if the firmware did not accept the last message.
-      This may occur if the message is unknown or not allowed in the current
-      state. */
+   /** This warning occurs if the firmware did not accept the last message. This
+       may occur if the message is unknown or not allowed in the current
+       state. */
    DSL_WRN_FIRMWARE_MSG_DENIED = 9,
    /** This warning occurs if no data available from the device. */
    DSL_WRN_DEVICE_NO_DATA = 10,

@@ -1,7 +1,7 @@
 /******************************************************************************
 
-                          Copyright (c) 2007-2015
-                     Lantiq Beteiligungs-GmbH & Co. KG
+          Copyright 2018 Intel Corporation
+          Copyright 2007 - 2015 Lantiq Beteiligungs-GmbH & Co. KG
 
   For licensing information, see the file 'LICENSE' in the root folder of
   this software module.
@@ -1755,6 +1755,14 @@ DSL_void_t DSL_DRV_VRX_DumpMessage(
    DSL_DBG_ModuleLevel_t dbgmlData;
    DSL_boolean_t bPrint = DSL_FALSE, bDirSet = DSL_FALSE, bAutoMsg = DSL_FALSE;
    DSL_uint8_t i;
+   const IFX_uint32_t nCommonPayloadSize = 5*nSize/2;
+   const IFX_uint8_t nInfoSize = 35;
+   const IFX_uint8_t nBufSize = 10;
+   IFX_uint32_t nMsgSize = nCommonPayloadSize + nInfoSize;
+   IFX_uint32_t nCharsWrittenToBuf = 0;
+   char msg[nMsgSize];
+   char buf[nBufSize];
+
 
    dbgmlData.data.nDbgLevel  = DSL_DBG_NONE;
    dbgmlData.data.nDbgModule = DSL_DBG_MESSAGE_DUMP;
@@ -1823,11 +1831,12 @@ DSL_void_t DSL_DRV_VRX_DumpMessage(
       {
          bAutoMsg = DSL_TRUE;
       }
-
-      DSL_DRV_debug_printf(pContext, "DSL[%02d/%s]: 0x%04x 0x%04x 0x%04x",
-                           DSL_DEV_NUM(pContext),
-                           bReceive == DSL_TRUE ? (bAutoMsg == DSL_TRUE ? "ev" : "rx") : "tx",
-                           nMsgId, pData[0], pData[1]);
+      snprintf(msg, nInfoSize,
+                  "DSL[%02d/%s]: 0x%04x 0x%04x 0x%04x",
+                  DSL_DEV_NUM(pContext),
+                  bReceive == DSL_TRUE ? (bAutoMsg == DSL_TRUE ? "ev" : "rx") : "tx",
+                  nMsgId, pData[0], pData[1]);
+      nMsgSize -= nInfoSize;
 
       /* decide wether to interpret the rest as 16 or 32 bit */
       if (nMsgId & VDSL2_MBX_MSG_ID_IFX_MASK)
@@ -1835,7 +1844,9 @@ DSL_void_t DSL_DRV_VRX_DumpMessage(
          /* IFX message: 32 bit */
          for (i=0; i<((nSize-4)/4); i++)
          {
-            DSL_DRV_debug_printf(pContext, " %08X", pMsg32[i]);
+            nCharsWrittenToBuf = snprintf(buf, nBufSize, " %08X", pMsg32[i]);
+            strncat(msg, buf, nMsgSize);
+            nMsgSize -= nCharsWrittenToBuf;
          }
       }
       else
@@ -1843,11 +1854,15 @@ DSL_void_t DSL_DRV_VRX_DumpMessage(
          /* no IFX message: 16 bit */
          for (i=0; i<((nSize-4)/2); i++)
          {
-            DSL_DRV_debug_printf(pContext, " %04X", pMsg16[i]);
+            nCharsWrittenToBuf = snprintf(buf, nBufSize, " %04X", pMsg16[i]);
+            strncat(msg, buf, nMsgSize);
+            nMsgSize -= nCharsWrittenToBuf;
          }
       }
+      strncat(msg, DSL_DRV_CRLF, nMsgSize);
 
-      DSL_DRV_debug_printf(pContext, DSL_DRV_CRLF);
+
+      DSL_DRV_debug_printf(pContext, msg);
    }
 }
 #endif /* #ifndef DSL_DEBUG_DISABLE*/

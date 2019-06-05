@@ -1,5 +1,13 @@
 NEXT VERSION
 
+V4.20.1.2.0 - 2019-01-15
+common:
+- VRX (DSLCPE_SW-1162) Power down handling does not work for ADSL
+- VRX (DSLCPE_SW-1097) Message dump printout is not as expected
+- VRX (DSLCPE_SW-1142) Integrate fixes/patches for thread handling (PM + Autoboot)
+- VRX (DSLCPE_SW-1173) [VRX518][Power Saving] Switching BND->Single
+- VRX (UGW_SW-32871) Always send FW configuration message on InstanceControlSet
+
 V4.20.1.2 - 2018-08-16
 common:
 - VRX (DSLCPE_SW-1160) Release of memory within PM initialization sequence

@@ -68,7 +68,8 @@
 #define DSL_MIN_FW_VERSION_RA_MODE_GET         5,   1,  -1,  -1,  -1
 #define DSL_MIN_FW_VERSION_ADSL_PTM_BONDING  0xB,   0,   4,  -1,  -1
 #define DSL_MIN_FW_VERSION_VR11_R5           0xC,  -1,  -1,  -1,  -1
-#define DSL_MIN_FW_VERSION_VR11_R4MR2        0xC,   1,   4,  -1,  -1
+#define DSL_MIN_FW_VERSION_VR11_PD           0xC,   1,   4,  -1,  -1
+#define DSL_MIN_FW_VERSION_VR11_PD_ADSL      0xC,   1,   0,  -1,  -1
 
 /*
    Internal device dependent configuration options

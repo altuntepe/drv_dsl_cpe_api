@@ -19,6 +19,8 @@
 
 #undef DSL_DBG_BLOCK
 #define DSL_DBG_BLOCK DSL_DBG_PM
+#include <linux/delay.h>
+#define DSL_PM_THREAD_COUNT  50
 
 /** \addtogroup DRV_DSL_CPE_PM
  @{ */
@@ -160,7 +162,7 @@ DSL_Error_t DSL_DRV_PM_Start(
 #if defined(INCLUDE_DSL_CPE_PM_OPTIONAL_PARAMETERS) && defined (INCLUDE_DSL_CPE_PM_RETX_THRESHOLDS)
    DSL_XTUDir_t dir;
 #endif
-
+   unsigned int count = DSL_PM_THREAD_COUNT;
    DSL_CHECK_CTX_POINTER(pContext);
    DSL_CHECK_ERR_CODE();
 
@@ -557,16 +559,30 @@ DSL_Error_t DSL_DRV_PM_Start(
    }
 
    /* Check the PM module Near-End and Far-End thread active flag */
-   if( DSL_DRV_PM_CONTEXT(pContext)->pmThreadFe.bRun == DSL_FALSE &&
-       DSL_DRV_PM_CONTEXT(pContext)->pmThreadNe.bRun == DSL_FALSE )
+   while(count > 0)
    {
-      DSL_DEBUG(DSL_DBG_ERR,
-         (pContext, SYS_DBG_ERR"DSL[%02d]: ERROR - PM module NE and FE threads start failed!"
-         DSL_DRV_CRLF, DSL_DEV_NUM(pContext)));
+      count--;
+      msleep (100);
 
-      DSL_DRV_MemFree(DSL_DRV_PM_CONTEXT(pContext)->pCounters);
-      DSL_DRV_MemFree(DSL_DRV_PM_CONTEXT(pContext)->pCountersDump);
-      DSL_DRV_MemFree(pContext->PM);
+      if ((DSL_DRV_PM_CONTEXT(pContext)->pmThreadFe.bRun == DSL_TRUE) &&
+         (DSL_DRV_PM_CONTEXT(pContext)->pmThreadNe.bRun == DSL_TRUE))
+      {
+            DSL_DEBUG(DSL_DBG_MSG,
+               (pContext, SYS_DBG_MSG"DSL[%02d]: PM module NE and FE threads start success!"
+               DSL_DRV_CRLF, DSL_DEV_NUM(pContext)));
+            break;
+      }
+
+      if (count == 0)
+      {
+         DSL_DEBUG(DSL_DBG_ERR,
+            (pContext, SYS_DBG_ERR"DSL[%02d]: ERROR - PM module NE and FE threads start failed!"
+            DSL_DRV_CRLF, DSL_DEV_NUM(pContext)));
+
+         DSL_DRV_MemFree(DSL_DRV_PM_CONTEXT(pContext)->pCounters);
+         DSL_DRV_MemFree(DSL_DRV_PM_CONTEXT(pContext)->pCountersDump);
+         DSL_DRV_MemFree(pContext->PM);
+      }
    }
 
    DSL_DEBUG(DSL_DBG_MSG,

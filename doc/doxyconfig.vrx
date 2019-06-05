@@ -22,7 +22,7 @@ PROJECT_NAME           = "DSL CPE API"
 # This could be handy for archiving the generated documentation or
 # if some version control system is used.
 
-PROJECT_NUMBER         = 4.20.1.2
+PROJECT_NUMBER         = 4.20.1.2.0
 
 # The OUTPUT_DIRECTORY tag is used to specify the (relative or absolute)
 # base path where the generated documentation will be put.
@@ -988,6 +988,10 @@ PREDEFINED             = __PACKED__= \
                          INCLUDE_DSL_CPE_API_VDSL_SUPPORT:=1 \
                          INCLUDE_DSL_CPE_API_ADSL_SUPPORT:=0 \
                          INCLUDE_DSL_CPE_API_VRX \
+                         DSL_VRX_DEVICE_VR9 \
+                         DSL_VRX_DEVICE_VR10 \
+                         DSL_VRX_DEVICE_VR10_320 \
+                         DSL_VRX_DEVICE_VR11 \
                          DSL_DOC_GENERATION_EXCLUDE_ADSL_MIB \
                          DSL_DOC_GENERATION_EXCLUDE_UNWANTED \
                          INCLUDE_DSL_API_G997 \
